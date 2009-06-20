@@ -1,6 +1,6 @@
 # Apollonius - An Apollonius' problem-solver written in Java
 
-This is a port of the core of my [Inversion] app to Java.
+This is a port of the core of my "[Inversion][]" app to Java.
 It doesn't give proper results yet. - I don't know why...
 
 A quick introduction to the problem of Apollonius:
