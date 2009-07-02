@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Apollonius {
-	public static int precision = 100000;
+	public static double precision = 100000.0;
 	public static int inversionCircleSize = 10; // use a number greater than those you use for input
 	public static Boolean debug = false;
 	
@@ -43,9 +43,9 @@ public class Apollonius {
 		}
 		
 		Shape[] givenCircles = new Shape[3];
-		givenCircles[0] = new Line(1.5, 0);
-		givenCircles[1] = new Line(-0.5, 50);
-		givenCircles[2] = new Line(0.5, 30);
+		givenCircles[0] = new Line(0.1, 0);
+		givenCircles[1] = new Line(-1, 50);
+		givenCircles[2] = new Line(0.1, 30);
 /*		givenCircles[0] = new Circle(50, 30, 12);
 		givenCircles[1] = new Circle(41, 30, 9);
 		givenCircles[2] = new Point(50, 30);*/
@@ -57,9 +57,10 @@ public class Apollonius {
 		debug("Apollonius.main");
 		
 		solutionShapes = solutionForShapes(givenCircles); // solutionForShapes(givenCircles[0], givenCircles[1], givenCircles[2]);
-		Circle[] solutionCircles = getCircles(solutionShapes);
-		for (Circle circle : solutionCircles) {
-			System.out.println("x: " + circle.center.x + ", y:" + circle.center.y + ", r: " + circle.radius);
+		for (Shape s : solutionShapes) {
+			if (s != null) {
+				s.println();
+			}
 		}
 /*		Line[] solLines = getLines(shapes);
 		for (Line line : solLines) {
@@ -851,16 +852,6 @@ public class Apollonius {
 			6: line1 and line2 are parallel
 			7: none of the lines are parallel
 		*/
-		
-/*		if (iCount == 3 || iCount == 5 || iCount == 7) {
-			angleBisectors1 = line1.angleBisectorsWithLine(line2);
-		}
-		if (iCount == 3 || iCount == 6 || iCount == 7) {
-			angleBisectors2 = line1.angleBisectorsWithLine(line3);
-		}
-		if (iCount == 5 || iCount == 6) {
-			angleBisectors3 = line2.angleBisectorsWithLine(line3);
-		}*/
 		
 		/*** FIXME: Remove this: **/
 		for (Line l : angleBisectors1) {

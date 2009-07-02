@@ -12,8 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 
 class CanvasPanel extends JPanel {
-	public static CanvasPanel sharedPanel;
-	
 	public double scale = 6.0;
 	public Shape[] blackShapes;
 	public Shape[] redShapes;
@@ -23,8 +21,6 @@ class CanvasPanel extends JPanel {
 	public CanvasPanel(Shape[] black, Shape[] red) {
 		blackShapes = black;
 		redShapes = red;
-		
-		sharedPanel = this;
 	}
 	
 	public Dimension getPreferredSize() {
@@ -78,7 +74,7 @@ class CanvasPanel extends JPanel {
 	public void paintLine(Graphics2D g, Line l) {
 		Rectangle bounds = g.getClipBounds();
 		
-		if (l.point1.x == l.point2.x) {
+		if (Apollonius.round(l.point1.x) == Apollonius.round(l.point2.x)) {
 			int x = (int) Math.round(l.point1.x * scale);
 			g.drawLine(x, 0, x, bounds.height);
 		}

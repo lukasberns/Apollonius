@@ -156,7 +156,7 @@ public class Line extends Shape {
 			
 			if (line.point1.x == line.point2.x) {
 				System.out.println("Lines don't intersect or are invariant");
-				return new Point(0,0);
+				return null; //new Point(0,0);
 			}
 			
 			return new Point(this.point1.x, (line.getGradient() * this.point1.x) + line.getYIntersept());
@@ -173,7 +173,7 @@ public class Line extends Shape {
 
 			if (Apollonius.round(m1) == Apollonius.round(m2)) { // parallel or invariant
 				System.out.println("Lines don't intersect or are invariant");
-				return new Point(0,0);
+				return null; //new Point(0,0);
 			}
 			else {
 				// m1 * x + b1 = m2 * x + b2
