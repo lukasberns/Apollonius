@@ -5,36 +5,86 @@
 //  Created by Lukas Berns on 2009/5/28.
 //  Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 //
+
+package apollonius;
+
 import java.util.*;
+import javax.swing.*;        
+import java.awt.*;
 
 public class Apollonius {
 	public static int precision = 100000;
-	public static int inversionCircleSize = 100; // use a number greater than those you use for input
+	public static int inversionCircleSize = 10; // use a number greater than those you use for input
 	public static Boolean debug = false;
+	
+	public static Shape[] givenShapes;
+	public static Shape[] solutionShapes;
+	
+	public static void registerForDrawing(Shape[] newShapes) {
+		int lGiven = givenShapes.length;
+		int lNew = newShapes.length;
+		int lTotal = lGiven + lNew;
+		
+		Shape[] copy = givenShapes;
+		givenShapes = new Shape[lTotal];
+		
+		for (int i = 0; i < lGiven; i++) {
+			givenShapes[i] = copy[i];
+		}
+		
+		for (int i = 0; i < lNew; i++) {
+			givenShapes[lGiven + i] = newShapes[i];
+		}
+	}
 
     public static void main (String args[]) {
 		if (args.length > 0 && args[0].equals("--debug")) {
 			Apollonius.debug = true;
 		}
 		
-		Circle[] circles = new Circle[3];
-		circles[0] = new Circle(50, 30, 12);
-		circles[1] = new Circle(25, 30, 9);
-		circles[2] = new Circle(35, 15, 8);
+		Shape[] givenCircles = new Shape[3];
+		givenCircles[0] = new Line(1.5, 0);
+		givenCircles[1] = new Line(-0.5, 50);
+		givenCircles[2] = new Line(0.5, 30);
+/*		givenCircles[0] = new Circle(50, 30, 12);
+		givenCircles[1] = new Circle(41, 30, 9);
+		givenCircles[2] = new Point(50, 30);*/
+//		givenCircles[1] = new Circle(25, 30, 9);
+//		givenCircles[2] = new Circle(35, 15, 8);
+		
+		givenShapes = givenCircles;
 		
 		debug("Apollonius.main");
 		
-		Shape[] shapes = solutionForShapes(circles[0], circles[1], circles[2]); //solutionForShapes(circles);
-		Circle[] solCircles = getCircles(shapes);
-		for (Circle circle : solCircles) {
+		solutionShapes = solutionForShapes(givenCircles); // solutionForShapes(givenCircles[0], givenCircles[1], givenCircles[2]);
+		Circle[] solutionCircles = getCircles(solutionShapes);
+		for (Circle circle : solutionCircles) {
 			System.out.println("x: " + circle.center.x + ", y:" + circle.center.y + ", r: " + circle.radius);
 		}
-		Line[] solLines = getLines(shapes);
+/*		Line[] solLines = getLines(shapes);
 		for (Line line : solLines) {
 			System.out.println("m: " + line.getGradient() + ", c:" + line.getYIntersept());
-		}
+		}*/
+		
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		            public void run() {
+		                createAndShowGUI();
+		            }
+		        });
 	}
 	
+	private static void createAndShowGUI() {
+		//Create and set up the window.
+		JFrame frame = new JFrame("Apollonius");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		frame.add(new CanvasPanel(givenShapes, solutionShapes));
+		
+		//Display the window.
+		frame.pack();
+		frame.setVisible(true);
+	}
+
 	public static void debug(Object object) {
 		if (Apollonius.debug) {
 			System.out.print(">   ");
@@ -91,87 +141,12 @@ public class Apollonius {
 			Circle[] circles = getCircles(shapes);
 			return solutionForShapes(circles[0], circles[1], circles[2]);
 		}
-	/*	else if (numberOfLines == 3) {
+		else if (numberOfLines == 3) {
 			// 3 lines
-
-			NSUInteger iCount = 0;
-			IVSMutableArray *angleBisectors1, *angleBisectors2, *angleBisectors3;
-			if ([shapes[0] intersectsWithLine:shapes[1]] == IVSDoesIntersectLine) {
-				iCount+=1;
-			}
-			if ([shapes[0] intersectsWithLine:shapes[2]] == IVSDoesIntersectLine) {
-				iCount+=2;
-			}
-			if ([shapes[1] intersectsWithLine:shapes[2]] == IVSDoesIntersectLine) {
-				iCount+=4;
-			}
-
-			if (iCount == 3 || iCount == 5 || iCount == 7) {
-				angleBisectors1 = [shapes[0] angleBisectorsWithLine:shapes[1]];
-				angleBisectors1.paintConstructionsIfWanted;
-			}
-			if (iCount == 3 || iCount == 6 || iCount == 7) {
-				angleBisectors2 = [shapes[0] angleBisectorsWithLine:shapes[2]];
-				angleBisectors2.paintConstructionsIfWanted;
-			}
-			if (iCount == 5 || iCount == 6) {
-				angleBisectors3 = [shapes[1] angleBisectorsWithLine:shapes[2]];
-				angleBisectors3.paintConstructionsIfWanted;
-			}
-
-			/* iCount info:
-				0: all lines parallel
-				3: 1 and 2 are parallel
-				5: 0 and 2 are parallel
-				6: 0 and 1 are parallel
-				7: none of the lines are parallel
-			*//*
-
-
-			NSMutableArray* centers = NSMutableArray.array;
-			if (iCount == 3 || iCount == 7) {
-				if ([angleBisectors1[0] intersectsWithLine:angleBisectors2[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[0] intersectionPointWithLine:angleBisectors2[0]]];
-				if ([angleBisectors1[0] intersectsWithLine:angleBisectors2[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[0] intersectionPointWithLine:angleBisectors2[1]]];
-				if ([angleBisectors1[1] intersectsWithLine:angleBisectors2[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[1] intersectionPointWithLine:angleBisectors2[0]]];
-				if ([angleBisectors1[1] intersectsWithLine:angleBisectors2[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[1] intersectionPointWithLine:angleBisectors2[1]]];
-			}
-			else if (iCount == 5) {
-				if ([angleBisectors1[0] intersectsWithLine:angleBisectors3[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[0] intersectionPointWithLine:angleBisectors3[0]]];
-				if ([angleBisectors1[0] intersectsWithLine:angleBisectors3[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[0] intersectionPointWithLine:angleBisectors3[1]]];
-				if ([angleBisectors1[1] intersectsWithLine:angleBisectors3[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[1] intersectionPointWithLine:angleBisectors3[0]]];
-				if ([angleBisectors1[1] intersectsWithLine:angleBisectors3[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors1[1] intersectionPointWithLine:angleBisectors3[1]]];
-			}
-			else if (iCount == 6) {
-				if ([angleBisectors2[0] intersectsWithLine:angleBisectors3[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors2[0] intersectionPointWithLine:angleBisectors3[0]]];
-				if ([angleBisectors2[0] intersectsWithLine:angleBisectors3[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors2[0] intersectionPointWithLine:angleBisectors3[1]]];
-				if ([angleBisectors2[1] intersectsWithLine:angleBisectors3[0]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors2[1] intersectionPointWithLine:angleBisectors3[0]]];
-				if ([angleBisectors2[1] intersectsWithLine:angleBisectors3[1]] == IVSDoesIntersectLine)
-					[centers addShape:[angleBisectors2[1] intersectionPointWithLine:angleBisectors3[1]]];
-			}
-
-			IVSMutableArray* circlesTouching = IVSMutableArray.array;
-			double radius;
-			Circle c;
-			for (Point cp in centers) {
-				radius = [shapes[0] distanceToPoint:cp];
-				c = Circle.circleWithPointradius(cp, radius);
-				circlesTouching.addShape(c);
-			}
-			return circlesTouching;
-
+			Line[] lines = getLines(shapes);
+			return solutionForShapes(lines[0], lines[1], lines[2]);
 		}
-		else if (this.numberOfPoints == 3) {
+/*		else if (this.numberOfPoints == 3) {
 			Circle inversionCircle = [Circle circleWithPoint:this[0] radius:Apollonius.inversionCircleSize];
 			if (IVSShowConstructions) inversionCircle.paintInversionCircleStyle;
 			IVSMutableArray* constructionsArray = IVSMutableArray.array;
@@ -814,6 +789,17 @@ public class Apollonius {
 			Circle c2_ = (Circle) circle2.shapeInvertedWithCircle(inversionCircle);
 			Line[] tArr = commonTangentsOfCircles(c1_, c2_);
 			
+			/****** FIXME: Remove this: TEMP *******/
+			Shape[] addToGivenShapes = new Shape[6];
+			addToGivenShapes[0] = c1_;		if (addToGivenShapes[0] != null) {addToGivenShapes[0].color = Color.BLUE;}
+			addToGivenShapes[1] = c2_;		if (addToGivenShapes[1] != null) {addToGivenShapes[1].color = Color.BLUE;}
+			addToGivenShapes[2] = tArr[0];	if (addToGivenShapes[2] != null) {addToGivenShapes[2].color = Color.GREEN;}
+			addToGivenShapes[3] = tArr[1];	if (addToGivenShapes[3] != null) {addToGivenShapes[3].color = Color.GREEN;}
+			addToGivenShapes[4] = tArr[2];	if (addToGivenShapes[4] != null) {addToGivenShapes[4].color = Color.GREEN;}
+			addToGivenShapes[5] = tArr[3];	if (addToGivenShapes[5] != null) {addToGivenShapes[5].color = Color.GREEN;}
+			registerForDrawing(addToGivenShapes);
+			/****** END TEMP *******/
+			
 			Line s = new Line(c1_.center, c2_.center);
 			Boolean pointIsOnLeftSideOfS = s.pointIsOnLeftSide(point);
 			
@@ -836,6 +822,94 @@ public class Apollonius {
 			System.out.println("Point is on either circle"); // TODO: Throw error
 			return new Shape[4];
 		}
+	}
+	
+	public static Shape[] solutionForShapes(Line line1, Line line2, Line line3) {
+		int iCount = 0;
+		Line[] angleBisectors1, angleBisectors2, angleBisectors3;
+		angleBisectors1 = new Line[2];
+		angleBisectors2 = new Line[2];
+		angleBisectors3 = new Line[2];
+		
+		if (line1.intersectsWithLine(line2) == IntersectionCount.ONE) {
+			angleBisectors1 = line1.angleBisectorsWithLine(line2);
+			iCount += 1;
+		}
+		if (line1.intersectsWithLine(line3) == IntersectionCount.ONE) {
+			angleBisectors2 = line1.angleBisectorsWithLine(line3);
+			iCount += 2;
+		}
+		if (line2.intersectsWithLine(line3) == IntersectionCount.ONE) {
+			angleBisectors3 = line2.angleBisectorsWithLine(line3);
+			iCount += 4;
+		}
+		
+		/* iCount info:
+			0: all lines parallel
+			3: line2 and line3 are parallel
+			5: line1 and line3 are parallel
+			6: line1 and line2 are parallel
+			7: none of the lines are parallel
+		*/
+		
+/*		if (iCount == 3 || iCount == 5 || iCount == 7) {
+			angleBisectors1 = line1.angleBisectorsWithLine(line2);
+		}
+		if (iCount == 3 || iCount == 6 || iCount == 7) {
+			angleBisectors2 = line1.angleBisectorsWithLine(line3);
+		}
+		if (iCount == 5 || iCount == 6) {
+			angleBisectors3 = line2.angleBisectorsWithLine(line3);
+		}*/
+		
+		/*** FIXME: Remove this: **/
+		for (Line l : angleBisectors1) {
+			if (l != null) { l.color = Color.GREEN; }
+		}
+		for (Line l : angleBisectors2) {
+			if (l != null) { l.color = Color.BLUE; }
+		}
+		for (Line l : angleBisectors3) {
+			if (l != null) { l.color = Color.GRAY; }
+		}
+		registerForDrawing(angleBisectors1);
+		registerForDrawing(angleBisectors2);
+		registerForDrawing(angleBisectors3);
+		/*** END ***/
+		
+		Point[] centers = new Point[4];
+		if (iCount == 3 || iCount == 7) {
+			centers[0] = angleBisectors1[0].intersectionPointWithLine(angleBisectors2[0]);
+			centers[1] = angleBisectors1[0].intersectionPointWithLine(angleBisectors2[1]);
+			centers[2] = angleBisectors1[1].intersectionPointWithLine(angleBisectors2[0]);
+			centers[3] = angleBisectors1[1].intersectionPointWithLine(angleBisectors2[1]);
+		}
+		else if (iCount == 5) {
+			centers[0] = angleBisectors1[0].intersectionPointWithLine(angleBisectors3[0]);
+			centers[1] = angleBisectors1[0].intersectionPointWithLine(angleBisectors3[1]);
+			centers[2] = angleBisectors1[1].intersectionPointWithLine(angleBisectors3[0]);
+			centers[3] = angleBisectors1[1].intersectionPointWithLine(angleBisectors3[1]);
+		}
+		else if (iCount == 6) {
+			centers[0] = angleBisectors2[0].intersectionPointWithLine(angleBisectors3[0]);
+			centers[1] = angleBisectors2[0].intersectionPointWithLine(angleBisectors3[1]);
+			centers[2] = angleBisectors2[1].intersectionPointWithLine(angleBisectors3[0]);
+			centers[3] = angleBisectors2[1].intersectionPointWithLine(angleBisectors3[1]);
+		}
+
+		Circle[] circlesTouching = new Circle[4];
+		double radius;
+		int cI = 0;
+		for (Point cp : centers) {
+			if (cp == null) {
+				continue;
+			}
+			radius = line1.distanceToPoint(cp);
+			circlesTouching[cI] = new Circle(cp, radius);
+			cI++;
+		}
+		return circlesTouching;
+		
 	}
 	
 	public static Shape[] shapesInvertedWithCircle(Shape[] shapes, Circle circle) {

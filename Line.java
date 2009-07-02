@@ -6,6 +6,8 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+package apollonius;
+
 public class Line extends Shape {
 	public Point point1;
 	public Point point2;
@@ -21,6 +23,11 @@ public class Line extends Shape {
 	
 	public Line(double x, double y, double angle) {
 		this(new Point(x, x), angle);
+	}
+
+	public Line(double gradient, double yIntersept) {
+		this(new Point(0, yIntersept), 0);
+		setGradient(gradient);
 	}
 
 	public Line(Point p, double angle) {
@@ -145,11 +152,13 @@ public class Line extends Shape {
 
 	public Point intersectionPointWithLine(Line line) {
 		Apollonius.debug("Line.intersectionPointWithLine(Line)");
-		if (this.point1.x == this.point2.x && line.point1.x == line.point2.x) {
-			System.out.println("Lines don't intersect or are invariant");
-			return new Point(0,0);
-		}
-		else if (this.point1.x == this.point2.x) {		
+		if (this.point1.x == this.point2.x) {
+			
+			if (line.point1.x == line.point2.x) {
+				System.out.println("Lines don't intersect or are invariant");
+				return new Point(0,0);
+			}
+			
 			return new Point(this.point1.x, (line.getGradient() * this.point1.x) + line.getYIntersept());
 		}
 		else if (line.point1.x == line.point2.x) {		

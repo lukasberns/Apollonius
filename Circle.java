@@ -6,6 +6,8 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+package apollonius;
+
 public class Circle extends Shape {
 	public Point center;
 	public double radius;
@@ -49,7 +51,7 @@ public class Circle extends Shape {
 		if (this.getX() == inversionCircle.getX() && this.getY() == inversionCircle.getY()) {
 			// create Point on circle and invert it with the circle
 			Point radiusHelperPoint = new Point(this.getX() + this.radius, this.getY());
-			return new Circle(this.center, this.center.x - radiusHelperPoint.shapeInvertedWithCircle(inversionCircle).x);
+			return new Circle(this.center, radiusHelperPoint.shapeInvertedWithCircle(inversionCircle).x - this.center.x);
 		}
 		else if (this.intersectsWithPoint(inversionCircle.center)) {
 			Line s = new Line(this.center, inversionCircle.center);

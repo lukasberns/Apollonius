@@ -6,7 +6,13 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+package apollonius;
+
+import java.awt.Color;
+
 public class Shape implements Cloneable {
+	public Color color = Color.BLACK;
+	
 	public ShapeType getShapeType() { // TODO: It's strange this doesn't work with static although it makes more sense
 		return ShapeType.SHAPE;
 	}

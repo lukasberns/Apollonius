@@ -6,6 +6,8 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+package apollonius;
+
 public class Point extends Shape {
 	public double x;
 	public double y;
