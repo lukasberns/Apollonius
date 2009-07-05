@@ -13,8 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Apollonius {
-	public static double precision = 100000.0;
-	public static int inversionCircleSize = 20; // use a number greater than those you use for input
+	public static double precision = 1000000.0;
+	public static int inversionCircleSize = 1000; // use a number greater than those you use for input
 	public static Boolean debug = false;
 	public static Boolean help = false;
 	public static Boolean render = false;
