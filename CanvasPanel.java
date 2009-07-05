@@ -15,7 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 class CanvasPanel extends JPanel {
-	public double scale = 6.0;
+	public static double scale = 6.0;
 	public Shape[] blackShapes;
 	public Shape[] redShapes;
 	
