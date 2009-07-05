@@ -11,10 +11,15 @@ package apollonius;
 import javax.swing.*;        
 import java.awt.*;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 class CanvasPanel extends JPanel {
 	public double scale = 6.0;
 	public Shape[] blackShapes;
 	public Shape[] redShapes;
+	
+	private Timer timer;
 	
 	public static final int pointRadius = 2;
 	
@@ -43,6 +48,25 @@ class CanvasPanel extends JPanel {
 			}
 		}
 		paintShapes(g, redShapes);
+		
+//		timer = new Timer();
+//		timer.schedule(new MoveFirstCircle(), 10);
+	}
+	
+	class MoveFirstCircle extends TimerTask {
+		public void run() {
+			if (blackShapes.length > 0) {
+				Shape s = blackShapes[0];
+				if (s.getShapeType() == ShapeType.CIRCLE) {
+					((Circle) s).center.x += 0.05;
+					((Circle) s).radius -= 0.02;
+					Shape[] givenShapes = new Shape[3];
+					System.arraycopy(blackShapes, 0, givenShapes, 0, 3);
+					redShapes = Apollonius.solutionForShapes(givenShapes);
+					repaint();
+				}
+			}
+		}
 	}
 	
 	public void paintShapes(Graphics2D g, Shape[] shapes) {

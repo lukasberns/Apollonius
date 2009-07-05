@@ -14,8 +14,10 @@ import java.awt.*;
 
 public class Apollonius {
 	public static double precision = 100000.0;
-	public static int inversionCircleSize = 10; // use a number greater than those you use for input
+	public static int inversionCircleSize = 20; // use a number greater than those you use for input
 	public static Boolean debug = false;
+	public static Boolean help = false;
+	public static Boolean render = false;
 	
 	public static Shape[] givenShapes;
 	public static Shape[] solutionShapes;
@@ -38,23 +40,50 @@ public class Apollonius {
 	}
 
     public static void main (String args[]) {
-		if (args.length > 0 && args[0].equals("--debug")) {
-			Apollonius.debug = true;
+		if (args.length > 0) {
+			for (String arg : args) {
+				if (arg.equals("--debug")) {
+					debug = true;
+				}
+				else if (arg.equals("--render")) {
+					render = true;
+				}
+				else if (arg.equals("--help")) {
+					help = true;
+				}
+				else {
+					System.out.println("Unknown option: " + arg);
+					help = true;
+				}
+			}
+		}
+		
+		if (help) {
+			System.out.println("Apollonius - A program to solve the problem of Apollonius");
+			System.out.println("Available options:");
+			System.out.println("--debug\t\tEnable debug mode.");
+			System.out.println("--help\t\tShow this help information.");
+			System.out.println("--render\tRender results in a window.");
+			System.exit(0);
 		}
 		
 		Shape[] givenCircles = new Shape[3];
-		givenCircles[0] = new Line(0.1, 0);
+/*		givenCircles[0] = new Line(0.1, 0);
 		givenCircles[1] = new Line(-1, 50);
-		givenCircles[2] = new Line(0.1, 30);
-/*		givenCircles[0] = new Circle(50, 30, 12);
-		givenCircles[1] = new Circle(41, 30, 9);
-		givenCircles[2] = new Point(50, 30);*/
-//		givenCircles[1] = new Circle(25, 30, 9);
-//		givenCircles[2] = new Circle(35, 15, 8);
+		givenCircles[2] = new Line(0.1, 30);*/
+//		givenCircles[1] = new Circle(41, 30, 9);
+//		givenCircles[2] = new Point(10, 30);
+		givenCircles[1] = new Circle(50, 30, 12);
+//		givenCircles[0] = new Circle(25, 30, 9);
+		givenCircles[0] = new Circle(28, 30, 8);
+		givenCircles[2] = new Circle(35, 15, 8);
+		
+/*		givenCircles[0] = new Circle(50, 30, 3);
+		givenCircles[1] = new Circle(25, 30, 1);
+		givenCircles[2] = new Point(35, 15);*/
+		
 		
 		givenShapes = givenCircles;
-		
-		debug("Apollonius.main");
 		
 		solutionShapes = solutionForShapes(givenCircles); // solutionForShapes(givenCircles[0], givenCircles[1], givenCircles[2]);
 		for (Shape s : solutionShapes) {
@@ -62,16 +91,14 @@ public class Apollonius {
 				s.println();
 			}
 		}
-/*		Line[] solLines = getLines(shapes);
-		for (Line line : solLines) {
-			System.out.println("m: " + line.getGradient() + ", c:" + line.getYIntersept());
-		}*/
 		
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-		            public void run() {
-		                createAndShowGUI();
-		            }
-		        });
+		if (render) {
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					createAndShowGUI();
+				}
+			});
+		}
 	}
 	
 	private static void createAndShowGUI() {
@@ -121,12 +148,19 @@ public class Apollonius {
 		}
 	}
 	
+	public static boolean eq(double one, double two) {
+		return Apollonius.round(one) == Apollonius.round(two);
+	}
+	
+	public static boolean notEq(double one, double two) {
+		return Apollonius.round(one) != Apollonius.round(two);
+	}
+	
 	public static double round(double input) {
 		return Math.round(input * precision) / precision;
 	}
 	
 	public static Shape[] solutionForShapes(Shape[] shapes) {
-		debug("Apollonius.solutionForShapes(Shape[])");
 		
 		if (shapes.length != 3) {
 			System.out.println("Apollonius.solutionForShapes(): Array must contain 3 elements."); // TODO: Throw an error
@@ -473,7 +507,6 @@ public class Apollonius {
 	}
 	
 	public static Shape[] solutionForShapes(Circle circle1, Circle circle2, Circle circle3) {
-		debug("Apollonius.solutionForShapes(Circle, Circle, Circle)");
 		/*ALTERNATIVE APPROACH WHEN ALL CIRCLES INTERSECT IN ONE POINT
 		-----------------------------------------------------------
 		if (((Circle) shapes[0]).intersectsInOnePointWithCircles((Circle) shapes[1], (Circle) shapes[2])) {
@@ -620,44 +653,41 @@ public class Apollonius {
 			/*
 			BUGGY ALTERNATIVE APPROACH
 			-------------------------*/
-			double r_1 = circle1.radius;
-			double r_2 = circle2.radius;
-			double r_3 = circle3.radius;
 			Circle c1, c2, c3; // c1 has the smallest radius
 			c1 = circle1;
 			c2 = circle2;
 			c3 = circle3;
-			if (r_1 <= r_2) {
-				if (r_1 > r_3) {
+			if (circle1.radius <= circle2.radius) {
+				if (circle1.radius > circle3.radius) {
 					c1 = circle3;
 					c3 = circle1;
 				}
 			}
 			else {
 				c2 = circle1;
-				if (r_2 <= r_3) {
+				if (circle2.radius <= circle3.radius) {
 					c1 = circle2;
 				}
 				else {
 					c1 = circle3;
-					c1 = circle2;
+					c3 = circle2;
 				}
 			}
-			r_1 = c1.radius;
-			r_2 = c2.radius;
-			r_3 = c3.radius;
-
+			double r_1 = c1.radius;
+			double r_2 = c2.radius;
+			double r_3 = c3.radius;
+			
 			// (circles touching from inside | from outside... )
 			Shape[] arr_1 = new Shape[3]; // (123|-) (-|123)	- 2-, 3-	- ii, aa
 			Shape[] arr_2 = new Shape[3]; // (12|3) (3|12)		- 2-, 3+	- ia
 			Shape[] arr_3 = new Shape[3]; // (13|2) (2|13)		- 2+, 3-	- ia 
 			Shape[] arr_4 = new Shape[3]; // (1|23) (23|1)		- 2+, 3+	- ii, aa
-
+			
 			arr_1[0] = (Point) c1.center.clone();
 			arr_2[0] = (Point) c1.center.clone();
 			arr_3[0] = (Point) c1.center.clone();
 			arr_4[0] = (Point) c1.center.clone();
-
+			
 			Circle c2s = (Circle) c2.clone(); // 2-
 			Circle c2l = (Circle) c2.clone(); // 2+
 			c2s.radius -= r_1;
@@ -666,23 +696,23 @@ public class Apollonius {
 			arr_2[1] = c2s; // 2-, 3+
 			arr_3[1] = c2l; // 2+, 3-
 			arr_4[1] = c2l; // 2+, 3+
-
+			
 			Circle c3s = (Circle) c3.clone(); // 3-
 			Circle c3l = (Circle) c3.clone(); // 3+
 			c3s.radius -= r_1;
 			c3l.radius += r_1;
 			arr_1[2] = c3s; // 2-, 3-
-			arr_3[2] = c3s; // 2+, 3-
 			arr_2[2] = c3l; // 2-, 3+
+			arr_3[2] = c3s; // 2+, 3-
 			arr_4[2] = c3l; // 2+, 3+
-
+			
 			Shape[] rArr1 = solutionForShapes(arr_1);
 			Shape[] rArr2 = solutionForShapes(arr_2);
 			Shape[] rArr3 = solutionForShapes(arr_3);
 			Shape[] rArr4 = solutionForShapes(arr_4);
 			Shape[] rArr = new Shape[8];
 			int ri = 0;
-
+			
 			Circle tmpCircle;
 			boolean makeBigger;
 			Line[] parallelLines;
@@ -690,6 +720,9 @@ public class Apollonius {
 				if (obj1 == null) {
 					continue;
 				}
+				
+				obj1.color = Color.GRAY;
+				
 				if (obj1.getShapeType() == ShapeType.LINE) {
 					parallelLines = ((Line) obj1).parallelLinesWithDistance(r_1);
 					rArr[ri] = parallelLines[0]; ri++;
@@ -697,7 +730,7 @@ public class Apollonius {
 				}
 				else if ((((Circle) obj1).touchesCircleInternally(c2s) == ((Circle) obj1).touchesCircleInternally(c3s))) {
 					rArr[ri] = obj1; ri++;
-					if (r_1 == r_2)
+					if (Apollonius.eq(r_1, r_2))
 						makeBigger = ((Circle) obj1).touchesCircleInternally(c3s);
 					else
 						makeBigger = ((Circle) obj1).touchesCircleInternally(c2s);
@@ -772,7 +805,6 @@ public class Apollonius {
 	}
 	
 	public static Shape[] solutionForShapes(Point point, Circle circle1, Circle circle2) {
-		debug("Apollonius.solutionForShapes(Point, Circle, Circle)");
 		/* result is defined as following:
 		   e: touches externally
 		   i: touches internally
@@ -788,18 +820,8 @@ public class Apollonius {
 			Circle inversionCircle = new Circle(point, Apollonius.inversionCircleSize);
 			Circle c1_ = (Circle) circle1.shapeInvertedWithCircle(inversionCircle);
 			Circle c2_ = (Circle) circle2.shapeInvertedWithCircle(inversionCircle);
-			Line[] tArr = commonTangentsOfCircles(c1_, c2_);
 			
-			/****** FIXME: Remove this: TEMP *******/
-			Shape[] addToGivenShapes = new Shape[6];
-			addToGivenShapes[0] = c1_;		if (addToGivenShapes[0] != null) {addToGivenShapes[0].color = Color.BLUE;}
-			addToGivenShapes[1] = c2_;		if (addToGivenShapes[1] != null) {addToGivenShapes[1].color = Color.BLUE;}
-			addToGivenShapes[2] = tArr[0];	if (addToGivenShapes[2] != null) {addToGivenShapes[2].color = Color.GREEN;}
-			addToGivenShapes[3] = tArr[1];	if (addToGivenShapes[3] != null) {addToGivenShapes[3].color = Color.GREEN;}
-			addToGivenShapes[4] = tArr[2];	if (addToGivenShapes[4] != null) {addToGivenShapes[4].color = Color.GREEN;}
-			addToGivenShapes[5] = tArr[3];	if (addToGivenShapes[5] != null) {addToGivenShapes[5].color = Color.GREEN;}
-			registerForDrawing(addToGivenShapes);
-			/****** END TEMP *******/
+			Line[] tArr = commonTangentsOfCircles(c1_, c2_);
 			
 			Line s = new Line(c1_.center, c2_.center);
 			Boolean pointIsOnLeftSideOfS = s.pointIsOnLeftSide(point);
@@ -870,6 +892,7 @@ public class Apollonius {
 		
 		Point[] centers = new Point[4];
 		if (iCount == 3 || iCount == 7) {
+			// FIXME: if iCount is 3 | 5 | 6, two of the 4 called methods WILL println("Lines don't intersect or are invariant")
 			centers[0] = angleBisectors1[0].intersectionPointWithLine(angleBisectors2[0]);
 			centers[1] = angleBisectors1[0].intersectionPointWithLine(angleBisectors2[1]);
 			centers[2] = angleBisectors1[1].intersectionPointWithLine(angleBisectors2[0]);
@@ -904,7 +927,6 @@ public class Apollonius {
 	}
 	
 	public static Shape[] shapesInvertedWithCircle(Shape[] shapes, Circle circle) {
-		debug("Apollonius.shapesInvertedWithCircle(Shape[], Circle)");
 		Shape iObj;
 		int length = shapes.length;
 		Shape[] invertedArray = new Shape[length];
@@ -919,7 +941,6 @@ public class Apollonius {
 	}
 	
 	public static Line[] commonTangentsOfCircles(Circle circle1, Circle circle2) {
-		debug("Apollonius.commonTangentsOfCircles(Circle, Circle)");
 		/* when seen from circle1.center to circle2.center,
 		 * l: touches left side of circle1
 		 * r: touches right side of circle1
@@ -979,8 +1000,8 @@ public class Apollonius {
 			tangents[3] = sArr[1/*circle1IsSmaller ? 1 : 0*/].parallelLinesWithDistance(c1.radius)[1];
 		}
 		
-		System.out.println("lArr.length = " + lArr.length);
-		if (lArr.length > 0) {
+		// System.out.println("lArr.length = " + lArr.length);
+		if (lArr.length > 1) {
 			tangents[1] = lArr[1].parallelLinesWithDistance(c1.radius)[0];
 			tangents[2] = lArr[0].parallelLinesWithDistance(c1.radius)[1];
 		}

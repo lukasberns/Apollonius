@@ -25,8 +25,8 @@ public class Point extends Shape {
 		return Math.sqrt(Math.pow((this.x - otherPoint.x), 2) + Math.pow((this.y - otherPoint.y), 2));
 	}
 	
-	public boolean isSameAs(Point p) {
-		return Apollonius.round(this.x) == Apollonius.round(p.x) && Apollonius.round(this.y) == Apollonius.round(p.y);
+	public boolean equals(Point p) {
+		return Apollonius.eq(this.x, p.x) && Apollonius.eq(this.y, p.y);
 	}
 	
 	public Point pointBetweenPoint(Point p) {

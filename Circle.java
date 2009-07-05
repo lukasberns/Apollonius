@@ -47,8 +47,7 @@ public class Circle extends Shape {
 	}
 	
 	public Shape shapeInvertedWithCircle(Circle inversionCircle) {
-		Apollonius.debug("Circle.shapeInvertedWithCircle(Circle)");
-		if (this.getX() == inversionCircle.getX() && this.getY() == inversionCircle.getY()) {
+		if (this.center.equals(inversionCircle.center)) {
 			// create Point on circle and invert it with the circle
 			Point radiusHelperPoint = new Point(this.getX() + this.radius, this.getY());
 			return new Circle(this.center, radiusHelperPoint.shapeInvertedWithCircle(inversionCircle).x - this.center.x);
@@ -58,7 +57,7 @@ public class Circle extends Shape {
 			Point[] p_arr = s.intersectionPointsWithCircle(this);
 			Point p = p_arr[0];
 
-			if (p.isSameAs(inversionCircle.center)) {
+			if (p.equals(inversionCircle.center)) {
 				p = p_arr[1];
 			}
 
@@ -68,6 +67,7 @@ public class Circle extends Shape {
 		}
 		else {
 			Line l = new Line(this.center, inversionCircle.center);
+			
 			Point[] p_arr = l.intersectionPointsWithCircle(this);
 			Point p1 = p_arr[0];
 			Point p2 = p_arr[1];
@@ -78,7 +78,7 @@ public class Circle extends Shape {
 	}
 	
 	public boolean intersectsWithPoint(Point point) {
-		return Apollonius.round(this.radius) == Apollonius.round(this.center.distanceToPoint(point));
+		return Apollonius.eq(this.radius, this.center.distanceToPoint(point));
 	}
 	
 	public IntersectionCount intersectsWithLine(Line line) {
@@ -102,19 +102,19 @@ public class Circle extends Shape {
 		
 		double d;
 		
-		if ((xO1 == xO2) && (yO1 == yO2)) {
+		if (Apollonius.eq(xO1, xO2) && Apollonius.eq(yO1, yO2)) {
 			// equal center points
-			if (r1 == r2)
+			if (Apollonius.eq(r1, r2))
 				return IntersectionCount.INFINITY;
 			else
 				return IntersectionCount.ZERO;
 		}
-		else if ((yO1 == yO2) && (xO1 != xO2)) {
+		else if (Apollonius.eq(yO1, yO2) && Apollonius.notEq(xO1, xO2)) {
 			// Both circle's center points have same y
 			double x1 = (Math.pow(r1, 2) - Math.pow(r2, 2)) / (2*xO2 - 2*xO1) + (xO1 + xO2) / 2;
 			d = Math.pow(r1, 2) - Math.pow(x1, 2) + 2*x1*xO1 - Math.pow(xO1, 2);
 		}
-		else if ((xO2 == xO1) && (yO2 != yO1)) {
+		else if (Apollonius.eq(xO2, xO1) && Apollonius.notEq(yO2, yO1)) {
 			// Both circle's center points on same x
 			double y1 = (Math.pow(r1, 2) - Math.pow(r2, 2)) / (2*yO2 - 2*yO1) + (yO1 + yO2) / 2;
 			d = Math.pow(r1, 2) - Math.pow(y1, 2) + 2*y1*yO1 - Math.pow(yO1, 2);
@@ -148,7 +148,6 @@ public class Circle extends Shape {
 	}
 	
 	public Point[] intersectionPointsWithCircle(Circle circle) {
-		Apollonius.debug("Circle.intersectionPointsWithCircle(Circle)");
 		// when seen from this.center to circle.center:
 		// [0]: left intersection point
 		// [1]: right intersection point
@@ -166,7 +165,7 @@ public class Circle extends Shape {
 		double x1, y1; // coordinates of left intersection point (see above)
 		double x2, y2; // coordinates of right intersection point
 		
-		if ((yO1 == yO2) && (xO1 != xO2)) {
+		if (Apollonius.eq(yO1, yO2) && Apollonius.eq(xO1, xO2)) {
 			// Both circle's center points have same y
 			x1 = x2 = (Math.pow(r1, 2) - Math.pow(r2, 2)) / (2*xO2 - 2*xO1) + (xO1 + xO2) / 2;
 			double offset = Math.sqrt(Math.pow(r1, 2) - Math.pow(x1, 2) + 2*x1*xO1 - Math.pow(xO1, 2));
@@ -176,7 +175,7 @@ public class Circle extends Shape {
 			y1 = yO1 + plusOrMinus * offset;
 			y2 = yO1 - plusOrMinus * offset;
 		}
-		else if (xO1 == xO2 && yO1 != yO2) {
+		else if (Apollonius.eq(xO1, xO2) && Apollonius.notEq(yO1, yO2)) {
 			// Both circle's center points have same x
 			y1 = y2 = (Math.pow(r1, 2) - Math.pow(r2, 2)) / (2*yO2 - 2*yO1) + (yO1 + yO2) / 2;
 			double offset = Math.sqrt(Math.pow(r1, 2) - Math.pow(y1, 2) + 2*y1*yO1 - Math.pow(yO1, 2));
@@ -236,7 +235,6 @@ public class Circle extends Shape {
 	}
 	
 	public Boolean touchesCircleInternally(Circle circle) {
-		Apollonius.debug("Circle.touchesCircleInternally(Circle)");
 		return this.pointIsEnclosed(circle.center) || circle.pointIsEnclosed(this.center);
 		// return Math.pow(circle.center.x - this.center.x, 2) + Math.pow(circle.center.y - this.center.y, 2) < Math.pow(this.radius, 2)
 		//	|| Math.pow(this.center.x - circle.center.x, 2) + Math.pow(this.center.y - circle.center.y, 2) < Math.pow(circle.radius, 2);
@@ -257,7 +255,6 @@ public class Circle extends Shape {
 	
 	
 	public Point intersectionPointWithCircles(Circle circle1, Circle circle2) {
-		Apollonius.debug("Circle.intersectionPointWithCircles(Circle, Circle)");
 		Point[] p1_arr = this.intersectionPointsWithCircle(circle1);
 		Point[] p2_arr = this.intersectionPointsWithCircle(circle2);
 		
@@ -274,21 +271,18 @@ public class Circle extends Shape {
 	}
 	
 	public boolean pointIsEnclosed(Point p) {
-		Apollonius.debug("Circle.pointIsEnclosed(Point)");
-		return Apollonius.round(p.distanceToPoint(this.center))
-				< Apollonius.round(this.radius);
+		// CHANGED: removed Apollonius.round here (I think it only makes sence when makeing an equals operation)
+		return p.distanceToPoint(this.center) < this.radius;
 	}
 	
 	public Line[] tangentsThroughPoint(Point p) {
-		Apollonius.debug("Circle.tangentsThroughPoint(Point)");
 		// when seen from point p, the result tangents touch the...
 		// [0]: ...left of the circle
 		// [1]: ...right of the circle
 		// point1 is the point p
 		
 		if (pointIsEnclosed(p)) { // if point is in the circle
-			Apollonius.debug("The point you are trying to create tangents to is enclosed in the circle.");
-			return new Line[0];
+			return new Line[0]; // TODO: Consider returning Line[2]
 		}
 		else if (this.intersectsWithPoint(p)) {
 			// if the point is on the circle
