@@ -8,28 +8,38 @@ Now this may sound easy, but try to do this with three points, which is the kind
 
 [Inversion]: http://rand1-365.blogspot.com/search/label/Inversion
 
-
 ## How to compile / run
 
 Compile the program from one directory higher with the following command:
 
-    $ javac apollonius/Apollonius.java
+	$ javac apollonius/Apollonius.java
 
-Then run it with
+Usage:
 
-    $ java apollonius.Apollonius
+	$ java apollonius.Apollonius [options] [input shapes]
 
-Available options:  
+### Available options:  
 `--debug`		Enable debug mode.  
 `--help`		Show help.  
-`--render`		Render the solutions in a window.  
+`--render`		Render the solutions in a window.
+
+### How to specify input shapes:
+
+Currently, only circles are supported.
+Please input exactly three circles separated with spaces.
+The syntax is like this:
+
+	circle[x,y,r]
+
+Where x and y are the coordinates of the center point and r is the radius.
+(Don't insert spaces after the comma!)
 
 
 ## To use it in other projects
 
-If you just want to use it for calculations, proceed like this:
+If you only want calculations, you should include the code in you project. Proceed like this:
 
-	import apollonius; // or change the package of the files
+	import apollonius; // or change the package of the classes
 	
 	Circle c1 = new Circle(15, 10, 8);
 	Circle c2 = new Circle(28, 30, 8);
@@ -41,13 +51,13 @@ If you just want to use it for calculations, proceed like this:
 	// you can use the array just as you like, e.g. to print the data of the shapes into STDOUT
 	for (Shape shape : solutions) {
 		if (shape != null) {
-			// always check for this
+			// whatever you do with the solutions, always check for this
 			
 			shape.println();
 		}
 	}
 
-Browse the source code for more info.
+Browse the source code for more info. Please read the notes at the end of this file, too.
 
 ## Note
 
@@ -60,3 +70,5 @@ I recommend something like 1000000.0 (10^6)
 Use a number greater than the radii of the circles you give as input (e.g. 1000)
 
 When rendering the solutions, adjust the `scale` class variable of `CanvasPanel` to scale the output.
+
+

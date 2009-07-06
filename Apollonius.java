@@ -40,6 +40,9 @@ public class Apollonius {
 	}
 
     public static void main (String args[]) {
+		givenShapes = new Shape[3];
+		
+		int inputShapesCount = 0;
 		if (args.length > 0) {
 			for (String arg : args) {
 				if (arg.equals("--debug")) {
@@ -51,41 +54,72 @@ public class Apollonius {
 				else if (arg.equals("--help")) {
 					help = true;
 				}
-				else {
-					System.out.println("Unknown option: " + arg);
-					help = true;
+				else if (arg.startsWith("circle[") && arg.endsWith("]")) {
+					// circles as input
+					String[] nums = arg.substring(7, arg.length() - 1).split(",");
+					if (nums.length == 3) {
+						double x = Double.valueOf(nums[0]).doubleValue();
+						double y = Double.valueOf(nums[1]).doubleValue();
+						double r = Double.valueOf(nums[2]).doubleValue();
+						givenShapes[inputShapesCount] = new Circle(x, y, r);
+						inputShapesCount++;
+					}
+					else {
+						System.out.println("Input circle was specified wrong: " + arg);
+						System.out.println("Specify it like this: circle[x,y,r]");
+					}
 				}
+				else {
+					System.out.println("Unknown argument: " + arg);
+					System.out.println("View help with --help argument.");
+				}
+			}
+			
+			if (inputShapesCount != 3 && inputShapesCount != 0) {
+				System.out.println("Please input exactly three circles.");
+				System.out.println("You provided " + inputShapesCount + " circle(s).");
 			}
 		}
 		
 		if (help) {
 			System.out.println("Apollonius - A program to solve the problem of Apollonius");
+			System.out.println("Usage: java apollonius.Apollonius [options] [input shapes]");
+			System.out.println("");
 			System.out.println("Available options:");
-			System.out.println("--debug\t\tEnable debug mode.");
-			System.out.println("--help\t\tShow this help information.");
-			System.out.println("--render\tRender results in a window.");
+			System.out.println("	--debug\t\tEnable debug mode.");
+			System.out.println("	--help\t\tShow this help information.");
+			System.out.println("	--render\tRender solutions in a window.");
+			System.out.println("");
+			System.out.println("How to specify input shapes:");
+			System.out.println("	Currently, only circles are supported.");
+			System.out.println("	Please input exactly three circles separated with spaces.");
+			System.out.println("	The syntax is like this:");
+			System.out.println("		circle[x,y,r]");
+			System.out.println("	Where x and y are the coordinates of the center point and r is the radius.");
+			System.out.println("	(Don't insert spaces after the comma!)");
 			System.exit(0);
 		}
 		
-		Shape[] givenCircles = new Shape[3];
-/*		givenCircles[0] = new Line(0.1, 0);
-		givenCircles[1] = new Line(-1, 50);
-		givenCircles[2] = new Line(0.1, 30);*/
-//		givenCircles[1] = new Circle(41, 30, 9);
-//		givenCircles[2] = new Point(10, 30);
-		givenCircles[1] = new Circle(50, 30, 12);
-//		givenCircles[0] = new Circle(25, 30, 9);
-		givenCircles[0] = new Circle(28, 30, 8);
-		givenCircles[2] = new Circle(35, 15, 8);
+		if (inputShapesCount == 0) {
+			System.out.println("You didn't input any circles.");
+			System.out.println("Will use circles defined in code as demo.");
+/*			givenShapes[0] = new Line(0.1, 0);
+			givenShapes[1] = new Line(-1, 50);
+			givenShapes[2] = new Line(0.1, 30);*/
+	//		givenShapes[1] = new Circle(41, 30, 9);
+	//		givenShapes[2] = new Point(10, 30);
+			givenShapes[1] = new Circle(50, 30, 12);
+	//		givenShapes[0] = new Circle(25, 30, 9);
+			givenShapes[0] = new Circle(28, 30, 8);
+			givenShapes[2] = new Circle(35, 15, 8);
 		
-/*		givenCircles[0] = new Circle(50, 30, 3);
-		givenCircles[1] = new Circle(25, 30, 1);
-		givenCircles[2] = new Point(35, 15);*/
+/*			givenShapes[0] = new Circle(50, 30, 3);
+			givenShapes[1] = new Circle(25, 30, 1);
+			givenShapes[2] = new Point(35, 15);*/
+		}
 		
-		
-		givenShapes = givenCircles;
-		
-		solutionShapes = solutionForShapes(givenCircles); // solutionForShapes(givenCircles[0], givenCircles[1], givenCircles[2]);
+		solutionShapes = solutionForShapes(givenShapes);
+		// solutionForShapes(givenShapes[0], givenShapes[1], givenShapes[2]);
 		for (Shape s : solutionShapes) {
 			if (s != null) {
 				s.println();
@@ -721,12 +755,16 @@ public class Apollonius {
 					continue;
 				}
 				
-				obj1.color = Color.GRAY;
-				
 				if (obj1.getShapeType() == ShapeType.LINE) {
 					parallelLines = ((Line) obj1).parallelLinesWithDistance(r_1);
-					rArr[ri] = parallelLines[0]; ri++;
-					rArr[ri] = parallelLines[1]; ri++;
+					if (   parallelLines[0].intersectsWithCircle(c1) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c2) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c3) == IntersectionCount.ONE) {
+						rArr[ri] = parallelLines[0]; ri++;
+					}
+					else {
+						rArr[ri] = parallelLines[1]; ri++;
+					}
 				}
 				else if ((((Circle) obj1).touchesCircleInternally(c2s) == ((Circle) obj1).touchesCircleInternally(c3s))) {
 					rArr[ri] = obj1; ri++;
@@ -747,8 +785,14 @@ public class Apollonius {
 				}
 				if (obj2.getShapeType() == ShapeType.LINE) {
 					parallelLines = ((Line) obj2).parallelLinesWithDistance(r_1);
-					rArr[ri] = parallelLines[0]; ri++;
-					rArr[ri] = parallelLines[1]; ri++;
+					if (   parallelLines[0].intersectsWithCircle(c1) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c2) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c3) == IntersectionCount.ONE) {
+						rArr[ri] = parallelLines[0]; ri++;
+					}
+					else {
+						rArr[ri] = parallelLines[1]; ri++;
+					}
 				}
 				else if ((((Circle) obj2).touchesCircleInternally(c2s) != ((Circle) obj2).touchesCircleInternally(c3l))) {
 					rArr[ri] = obj2; ri++;
@@ -766,8 +810,14 @@ public class Apollonius {
 				}
 				if (obj3.getShapeType() == ShapeType.LINE) {
 					parallelLines = ((Line) obj3).parallelLinesWithDistance(r_1);
-					rArr[ri] = parallelLines[0]; ri++;
-					rArr[ri] = parallelLines[1]; ri++;
+					if (   parallelLines[0].intersectsWithCircle(c1) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c2) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c3) == IntersectionCount.ONE) {
+						rArr[ri] = parallelLines[0]; ri++;
+					}
+					else {
+						rArr[ri] = parallelLines[1]; ri++;
+					}
 				}
 				else if ((((Circle) obj3).touchesCircleInternally(c2l) != ((Circle) obj3).touchesCircleInternally(c3s))) {
 					rArr[ri] = obj3; ri++;
@@ -785,8 +835,14 @@ public class Apollonius {
 				}
 				if (obj4.getShapeType() == ShapeType.LINE) {
 					parallelLines = ((Line) obj4).parallelLinesWithDistance(r_1);
-					rArr[ri] = parallelLines[0]; ri++;
-					rArr[ri] = parallelLines[1]; ri++;
+					if (   parallelLines[0].intersectsWithCircle(c1) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c2) == IntersectionCount.ONE
+						&& parallelLines[0].intersectsWithCircle(c3) == IntersectionCount.ONE) {
+						rArr[ri] = parallelLines[0]; ri++;
+					}
+					else {
+						rArr[ri] = parallelLines[1]; ri++;
+					}
 				}
 				else if (((Circle) obj4).touchesCircleInternally(c2l) == ((Circle) obj4).touchesCircleInternally(c3l)) {
 					rArr[ri] = obj4;
